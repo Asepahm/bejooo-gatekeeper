@@ -9,6 +9,7 @@
   "scripts": {
     "start": "node src/gatekeeper.mjs",
     "test": "node tests/trap-matrix.mjs",
+    "test:serverless": "node tests/serverless-harness.mjs",
     "probe": "node tests/probe-signals.mjs"
   },
   "keywords": [],

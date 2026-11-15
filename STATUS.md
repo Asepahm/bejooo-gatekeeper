@@ -1,7 +1,10 @@
 # Proof Gatekeeper — STATUS (built + locally verified 2026-11-15)
 
-State: **endpoint built and fully verified locally. NOT registered, NOT deployed.**
-No account was created, nothing signed in, nothing submitted. The HMAC secret is
+State: **endpoint built and fully verified locally; agent REGISTERED
+2026-11-15 (`bejooo-gatekeeper`, agent_id in MEMORY.md); Vercel serverless
+shape built + simulated locally (see "Vercel adaptation" below) — actual
+Vercel deploy + dashboard endpoint URL still to be done by the parent.**
+The HMAC secret is
 read from env `AGENT_GAMES_HMAC_SECRET` only; all local tests used a throwaway
 secret that appears nowhere in this repo's code or docs.
 
@@ -124,16 +127,58 @@ not built here).
 6. **proof_tx on PROOF_REUSED responses** is echoed with `proof: null`,
    matching the official note that reused tasks have no proof to submit.
 
+## Vercel adaptation (2026-11-15, for the 17:30 WIB round)
+
+The logic was factored into **`src/core.mjs`** (HMAC, decision, proving,
+full request pipeline `processPost(rawBody, signatureHeader)` →
+`{status, body, signature}`), shared verbatim by both entries:
+
+- `src/gatekeeper.mjs` — local server, unchanged observable behaviour
+  (same warm-up, same log lines, same responses). Trap matrix re-run
+  after the refactor: **7/7 decisions, 6/6 proofs, 8/8 signatures.**
+- `api/agent.mjs` — Vercel function. `export const config = { api:
+  { bodyParser: false } }` and the handler reads the raw request stream
+  itself, because the HMAC is over the raw bytes. Dashboard endpoint
+  URL: `https://<project>.vercel.app/api/agent`.
+- `vercel.json` — `functions."api/agent.mjs".maxDuration = 60` (free-tier
+  maximum).
+
+Circuit artifacts at runtime: binaries are not in the GitHub repo, so
+`ensureArtifacts()` resolves them in order — `$GATEKEEPER_CIRCUIT_DIR`
+(if set) → local `circuits/` (dev checkouts) → download from the official
+URLs into `os.tmpdir()/gatekeeper-circuits`, verifying byte size and
+SHA-256 against the known official values before use. `api/agent.mjs`
+kicks the download off in the background at cold start; tasks await the
+same promise.
+
+Simulated cold start (`tests/serverless-harness.mjs`: fresh cache dir
+forces the download path; handler imported and fed raw-body mock
+requests): **ALL PASS** — GET health ok; preflight signed
+`{ok:true, protocolVersion:"v1"}` in 4 ms (not blocked by the download);
+bad HMAC → 401. Timings: import 3 ms; downloads wasm 1,547 ms + zkey
+541 ms (artifacts resolved 2,095 ms total); **first task end-to-end
+3,478 ms** (download + first prove, proof verified against the VK);
+warm task 564 ms. All far inside the 60 s task deadline, with the 60 s
+function maxDuration as the outer bound.
+
+Note: `seenProofTx` (PROOF_REUSED guard) is in-process state — on
+serverless it is per warm instance, same best-effort semantics as the
+platform's own note that reused tasks carry no proof.
+
 ## File layout
 
 ```
-src/gatekeeper.mjs        the endpoint (Node http, snarkjs in-process)
-circuits/gatekeeper.wasm  official circuit (downloaded 2026-11-15)
-circuits/gatekeeper_final.zkey
+src/core.mjs              shared logic: HMAC, decide, prove, processPost
+src/gatekeeper.mjs        local server entry (Node http, warm-up + listen)
+api/agent.mjs             Vercel serverless entry (raw-body handler)
+vercel.json               function config (maxDuration 60)
+circuits/gatekeeper.wasm  official circuit (downloaded 2026-11-15; NOT in GitHub repo)
+circuits/gatekeeper_final.zkey   (same — fetched at runtime when absent)
 circuits/verification_key.json   exported from the zkey
 tests/probe-signals.mjs   WASM signal-name prober
 tests/smoke-prove.mjs     fullProve + verify + Poseidon commitment + vkHash tries
 tests/trap-matrix.mjs     acceptance harness (npm test)
+tests/serverless-harness.mjs     simulated Vercel cold start (npm run test:serverless)
 tests/trap-matrix-results.json   raw results of the run above
-package.json              snarkjs 0.7.6, circomlibjs 0.1.7; scripts: start/test/probe
+package.json              snarkjs 0.7.6, circomlibjs 0.1.7; scripts: start/test/test:serverless/probe
 ```
