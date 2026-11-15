@@ -1,0 +1,97 @@
+[
+  {
+    "name": "preflight",
+    "http": 200,
+    "ms": 39,
+    "preflightOk": true,
+    "respSigOk": true
+  },
+  {
+    "name": "VALID_CONDITION",
+    "http": 200,
+    "ms": 563,
+    "got": "APPROVE",
+    "reason": "VALID_CONDITION",
+    "decisionOk": true,
+    "respSigOk": true,
+    "proofPresent": true,
+    "proofVerified": true,
+    "decisionSignal": "1"
+  },
+  {
+    "name": "VK_SUBSTITUTION",
+    "http": 200,
+    "ms": 473,
+    "got": "REJECT",
+    "reason": "VK_SUBSTITUTION",
+    "decisionOk": true,
+    "respSigOk": true,
+    "proofPresent": true,
+    "proofVerified": true,
+    "decisionSignal": "0"
+  },
+  {
+    "name": "THRESHOLD_MISMATCH",
+    "http": 200,
+    "ms": 520,
+    "got": "REJECT",
+    "reason": "THRESHOLD_MISMATCH",
+    "decisionOk": true,
+    "respSigOk": true,
+    "proofPresent": true,
+    "proofVerified": true,
+    "decisionSignal": "0"
+  },
+  {
+    "name": "EXPIRED_CONDITION",
+    "http": 200,
+    "ms": 420,
+    "got": "REJECT",
+    "reason": "EXPIRED_CONDITION",
+    "decisionOk": true,
+    "respSigOk": true,
+    "proofPresent": true,
+    "proofVerified": true,
+    "decisionSignal": "0"
+  },
+  {
+    "name": "RECIPIENT_MISMATCH",
+    "http": 200,
+    "ms": 517,
+    "got": "REJECT",
+    "reason": "RECIPIENT_MISMATCH",
+    "decisionOk": true,
+    "respSigOk": true,
+    "proofPresent": true,
+    "proofVerified": true,
+    "decisionSignal": "0"
+  },
+  {
+    "name": "AMOUNT_OVERFLOW",
+    "http": 200,
+    "ms": 408,
+    "got": "REJECT",
+    "reason": "AMOUNT_OVERFLOW",
+    "decisionOk": true,
+    "respSigOk": true,
+    "proofPresent": true,
+    "proofVerified": true,
+    "decisionSignal": "0"
+  },
+  {
+    "name": "PROOF_REUSED",
+    "http": 200,
+    "ms": 6,
+    "got": "REJECT",
+    "reason": "PROOF_REUSED",
+    "decisionOk": true,
+    "respSigOk": true,
+    "proofPresent": false
+  },
+  {
+    "name": "BAD_HMAC",
+    "http": 401,
+    "refused": true,
+    "ms": 5
+  }
+]

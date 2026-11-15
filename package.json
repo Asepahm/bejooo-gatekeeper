@@ -1,0 +1,21 @@
+{
+  "name": "gatekeeper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "node src/gatekeeper.mjs",
+    "test": "node tests/trap-matrix.mjs",
+    "probe": "node tests/probe-signals.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "circomlibjs": "^0.1.7",
+    "snarkjs": "^0.7.6"
+  }
+}
